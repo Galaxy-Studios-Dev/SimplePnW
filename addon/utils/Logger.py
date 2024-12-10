@@ -1,7 +1,11 @@
+import os.path
 from datetime import datetime
 
 class Logger:
     __kit = {}
+
+    __path = ""
+
     __name = ""
     
     __date = ""
@@ -9,11 +13,21 @@ class Logger:
     
     __log_header = ""
     
-    def __init__(self, simplepnw, name):
-        self.__kit = simplepnw
+    def __init__(self, name, path):
+
+        if path == "" and name != "simplepnw" or name == "":
+            print("Invalid path given... Prevented throwing error...")
+            return None
+
+        if name == "simplepnw":
+            self.__path = f"{os.path.expanduser('~')}simplepnw/logs/"
+        else:
+            self.__path = f"{os.path.expanduser('~')}{path}logs/"
+
+        print(self.__path)
         self.__name = name
         date = datetime.now()
-        
+
         self.formatTime(date)
         
         if self.__name == "simplepnw":
@@ -31,8 +45,7 @@ class Logger:
         self.__log_header = self.setLogHeader(self.__name)
         
     def log(self, content):
-        data_manager = self.__kit.dataManager()
         self.formatTime(datetime.now())
         
-        with open(f"{data_manager.log_path}{self.__date}.log", 'a+') as log:
+        with open(f"{self.__path}{self.__date}.log", 'a+') as log:
             log.write(f"{self.__log_header}{content}\n")
