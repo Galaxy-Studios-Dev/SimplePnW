@@ -3,6 +3,9 @@ class AllianceQuery:
     __id = 0
     __acronym = ""
     __date = ""
+    __color = ""
+
+    __flag = ""
     
     __avg_score = 0
     __accept_members = False
@@ -18,6 +21,7 @@ class AllianceQuery:
                                                 id
                                                 acronym
                                                 date
+                                                color
                                                 
                                                 average_score
                                                 flag
@@ -63,6 +67,7 @@ class AllianceQuery:
         self.__id = alliance.id
         self.__acronym = alliance.acronym
         self.__date = alliance.date
+        self.__color = alliance.color
         
         self.__avg_score = alliance.average_score
         self.__accept_members = alliance.accept_members
@@ -80,20 +85,23 @@ class AllianceQuery:
     def acronym(self):
         return self.__acronym
 
+    def colorBlock(self):
+        return self.__color
+
     def founded(self):
         return self.__date
 
     def discordInvite(self):
         return self.__discord_invite
+        
+    def flag(self):
+        return self.__flag
 
     def averageScore(self):
         return self.__avg_score
 
     def acceptingMembers(self):
         return self.__accept_members
-
-    def awards(self):
-        return self.__awards
 
     def positions(self):
         return self.__positions
@@ -103,3 +111,4 @@ class AllianceQuery:
         
     def stockpile(self):
         return self.__resources
+        

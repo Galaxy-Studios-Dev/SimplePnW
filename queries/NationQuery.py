@@ -2,6 +2,7 @@ class NationQuery:
     __name = ""
     __leader_name = ""
     __founded = ""
+    __last_active = ""
     __discord = ""
     __vmode = False
 
@@ -52,6 +53,7 @@ class NationQuery:
                                                 nation_name
                                                 leader_name
                                                 date
+                                                last_active
                                                 discord
                                                 vmode
                                                 
@@ -252,12 +254,14 @@ class NationQuery:
         self.__id = nation.id
         self.__name = nation.nation_name
         self.__founded = nation.date
+        self.__last_active = nation.last_active
         self.__discord = nation.discord
 
         self.__flag = nation.flag
         self.__population = nation.population
         self.__score = nation.score
         self.__continent = nation.continent
+        self.__color_block = nation.color
         
         self.__resources = {'coal': nation.coal, 'iron': nation.iron, 'lead': nation.lead, 'bauxite': nation.bauxite, 'oil': nation.oil, 'uranium': nation.uranium,
                             'food': nation.food, 'steel': nation.steel, 'aluminum': nation.aluminum, 'gasoline': nation.gasoline, 'munitions': nation.munitions, 'money': nation.money}
@@ -276,13 +280,13 @@ class NationQuery:
 
         self.__baseball_team = nation.baseball_team
         
-        self.__troops['soldiers'] = {'total': nation.soldiers, 'casualties': nation.soldier_casualties, 'kills': nation.soldier_kills, 'max-recruit': nation.soldiers_today}
-        self.__troops['tanks'] = {'total': nation.tanks, 'casualties': nation.tank_casualties, 'kills': nation.tank_kills, 'max-recruit': nation.tanks_today}
-        self.__troops['aircraft'] = {'total': nation.aircraft, 'casualties': nation.aircraft_casualties, 'kills': nation.aircraft_kills, 'max-recruit': nation.aircraft_today}
-        self.__troops['ships'] = {'total': nation.ships, 'casualties': nation.ship_casualties, 'kills': nation.ship_kills, 'max-recruit': nation.ships_today}
-        self.__troops['spies'] = {'total': nation.spies, 'casualties': nation.spy_casualties, 'kills': nation.spy_kills, 'max-recruit': nation.spies_today}
-        self.__troops['missiles'] = {'total': nation.missiles, 'casualties': nation.missile_casualties, 'kills': nation.missile_kills, 'max-recruit': nation.missiles_today}
-        self.__troops['nukes'] = {'total': nation.nukes, 'casualties': nation.nuke_casualties, 'kills': nation.nuke_kills, 'max-recruit': nation.nukes_today}
+        self.__troops['soldiers'] = {'total': nation.soldiers, 'casualties': nation.soldier_casualties, 'kills': nation.soldier_kills, 'max': nation.soldiers_today}
+        self.__troops['tanks'] = {'total': nation.tanks, 'casualties': nation.tank_casualties, 'kills': nation.tank_kills, 'max': nation.tanks_today}
+        self.__troops['aircraft'] = {'total': nation.aircraft, 'casualties': nation.aircraft_casualties, 'kills': nation.aircraft_kills, 'max': nation.aircraft_today}
+        self.__troops['ships'] = {'total': nation.ships, 'casualties': nation.ship_casualties, 'kills': nation.ship_kills, 'max': nation.ships_today}
+        self.__troops['spies'] = {'total': nation.spies, 'casualties': nation.spy_casualties, 'kills': nation.spy_kills, 'max': nation.spies_today}
+        self.__troops['missiles'] = {'total': nation.missiles, 'casualties': nation.missile_casualties, 'kills': nation.missile_kills, 'max': nation.missiles_today}
+        self.__troops['nukes'] = {'total': nation.nukes, 'casualties': nation.nuke_casualties, 'kills': nation.nuke_kills, 'max': nation.nukes_today}
 
         self.__war_policy = nation.war_policy
         self.__war_policy_turns = nation.war_policy_turns
@@ -306,6 +310,9 @@ class NationQuery:
 
     def founded(self):
         return self.__founded
+        
+    def lastActive(self):
+        return self.__last_active
 
     def discordUser(self):
         return self.__discord
@@ -322,6 +329,9 @@ class NationQuery:
     def continent(self):
         return self.__continent
 
+    def colorBlock(self):
+        return self.__color_block
+
     def onVacation(self):
         return self.__vmode
 
@@ -336,6 +346,20 @@ class NationQuery:
 
     def cities(self):
         return self.__cities
+        
+    def land(self):
+        total = 0
+        
+        for city in self.__cities:
+            total = total + city.land
+        
+        return total
+        
+    def infrastructure(self):
+        total = 0
+        
+        for city in self.__cities:
+            total = total + city.infrastructure
 
     def baseballTeam(self):
         return self.__baseball_team
