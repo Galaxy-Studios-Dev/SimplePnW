@@ -5,13 +5,18 @@ import discord
 
 from simplepnw.addon.Nation import Nation
 from simplepnw.addon.Bank import Bank
+from simplepnw.addon.alliance.Coalition import Coalition
 
 class Alliance:
     __kit = {}
     __query = {}
+    __runs_audits = False
+    __audit_channels = {}
     
     __discord = {}
     __discord_roles = {'LEADER': 0, 'HEADDEPT': 0, 'FA': 0, 'IA': 0, 'MILCOM': 0, 'ECON': 0, 'ECONNB': 0, 'MEMBER': 0}
+    __webhook_urls = {}
+    
     __mmr_reqs = {'raider': {'barracks': 0, 'factories': 0, 'hangars': 0, 'drydocks': 0}, 'production': {'barracks': 0, 'factories': 0, 'hangars': 0, 'drydocks': 0}}
     
     __members = {}
@@ -25,12 +30,15 @@ class Alliance:
         self.__kit = simplepnw
         self.__query = self.__kit.query('alliance', aa_id)
         
-        self.__bank = Bank(self.__kit, self)
+        self.__bank = Bank(self)
         
-        self.createDirectory()
+        # self.createDirectory()
         
     def get(self):
         return self.__query
+        
+    def runsAudits(self):
+        return self.__runs_audits
         
     def discord(self):
         return self.__discord
@@ -42,8 +50,17 @@ class Alliance:
         return self.__discord_roles
         
     def discordRole(self, ctx, key):
-        role = discord.utils.get(ctx.guild.roles, id=int(key))
+        role = discord.utils.get(ctx.guild.roles, id=int(self.__discord_roles[key]))
         return role
+
+    def auditChannel(self, key):
+        return self.__audit_channels[key]
+        
+    def webhook(self, key):
+        return self.__webhook_urls[key]
+        
+    def webhooks(self):
+        return self.__webhook_urls
         
     def bank(self):
         return self.__bank
@@ -62,9 +79,35 @@ class Alliance:
         
     def specificMember(self, key):
         return self.__members[key]
+
+    def specificCoalition(self, key):
+        return self.__coalitions[key]
+
+    def coalitions(self):
+        return self.__coalitions
+
+    def setRunsAudits(self, value: bool):
+        self.__runs_audits = value
         
     def setDiscord(self, discord_user):
         self.__discord = discord_user
+
+    def setAuditChannel(self, key: str, value):
+        self.__audit_channels[key] = value
+        
+    def setSpecificDiscordRole(self, key, value):
+        self.__discord_roles[key] = value
+
+    def setDiscordRoles(self, role_ids):
+        temp = {}
+        for key in self.__discord_roles:
+            for x in range(len(role_ids)):
+                temp[key] = role_ids[x]
+
+        self.__discord_roles = temp
+        
+    def addWebhook(self, key, value):
+        self.__webhook_urls[key] = value
         
     def setMMR(self, required_mmr):
         self.__mmr_reqs = required_mmr
@@ -73,6 +116,7 @@ class Alliance:
         self.__mmr_reqs[key] = required
         
     def setMembers(self, nations):
+        self.__members = {}
         self.__members = nations
         
     def addMember(self, key, nation):
@@ -83,6 +127,30 @@ class Alliance:
         
     def addCoalition(self, key, coalition):
         self.__coalitions[key] = coalition
+
+    def createCoalition(self, name):
+        new_coalition = Coalition(name, self)
+        self.__coalitions[new_coalition.name()] = new_coalition
+        
+    def generalStats(self):
+        stats = {'land': 0, 'infra': 0, 'population': 0, 'GDP': 0}
+        
+        for member in self.__members:
+            member = self.__members[member]
+            land = member.get().land()
+            infra = member.get().infrastructure()
+            
+            stats['land'] = stats['land'] + land
+            stats['infra'] = stats['infra'] + infra
+            stats['population'] = stats['population'] + member.get().population()
+            
+        return stats
+        
+    def warStats(self):
+        stats = {'won': 0, 'lost': 0, 'total': 0}
+        
+    def militaryStats(self):
+        pass
         
     def createDirectory(self):
         data_manager = self.__kit.dataManager()
@@ -136,15 +204,16 @@ class Alliance:
         bank_settings_path = f"{desired_path}treasury/settings.json"
         
         data_manager.save(f"{desired_path}settings.json", {'mmr_reqs': self.__mmr_reqs})
-        data_manager.save(f"{desired_path}discord_roles", self.__discord_roles)
+        data_manager.save(f"{desired_path}discord_roles.json", self.__discord_roles)
         
         temp = {}
         
         for member in self.members():
+            member = self.members()[member]
             nation_id = member.get().id()
             
             temp[member.discord().global_name] = {'nation_id': nation_id, 'discord_id': member.discordId()}
-            member.bank().save(f"{desired_path}treasury/{nation_id}", member.bank().resources())
+            member.bank().save(f"{desired_path}treasury/{nation_id}.json")
             
         data_manager.save(f"{desired_path}members.json", temp)
         
